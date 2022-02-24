@@ -114,6 +114,7 @@ export default defineComponent({
   setup() {
     const chartConfig = reactive<ChartConfigT>({
       multiplier: 1.0,
+      lineWidth: 2.0,
     })
     const configDialog = ref(false)
     const selectedPeriod = ref<PeriodOptionT>('10m')
@@ -222,10 +223,18 @@ export default defineComponent({
           },
         },
       },
+      stroke: {
+        width: 2,
+      },
     }
 
     watch(updatePaused, () => {
       chartOptions.chart!.toolbar!.show = updatePaused.value
+      chart.value?.updateOptions(chartOptions)
+    })
+
+    watch(chartConfig, (v) => {
+      chartOptions.stroke!.width = v.lineWidth
       chart.value?.updateOptions(chartOptions)
     })
 
@@ -250,7 +259,7 @@ export default defineComponent({
   methods: {
     onConfigApply(config: ChartConfigT) {
       logger.debug('onConfigApply', config)
-      this.chartConfig.multiplier = config.multiplier
+      Object.assign(this.chartConfig, config)
     },
   },
 })

@@ -8,12 +8,20 @@
           <v-spacer></v-spacer>
         </v-toolbar>
         <v-card-text class="pa-3 text-center">
-          <v-form @submit.prevent="onClickApply">
+          <v-form v-model="isValid" @submit.prevent="onClickApply">
             <v-text-field
               v-model.number="config.multiplier"
               type="number"
               label="Multiplier"
               step="0.1"
+              :rules="[rules.numberRequired]"
+            ></v-text-field>
+            <v-text-field
+              v-model.number="config.lineWidth"
+              type="number"
+              label="Line Width"
+              step="0.1"
+              :rules="[rules.numberRequired]"
             ></v-text-field>
           </v-form>
         </v-card-text>
@@ -22,7 +30,12 @@
           <v-btn color="red darken-1" text @click="dialog_ = false">
             CLOSE
           </v-btn>
-          <v-btn color="blue darken-1" text @click="onClickApply">
+          <v-btn
+            color="blue darken-1"
+            text
+            :disabled="!isValid"
+            @click="onClickApply"
+          >
             APPLY
           </v-btn>
         </v-card-actions>
@@ -32,11 +45,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, reactive } from '@vue/composition-api'
+import { defineComponent, computed, reactive, ref } from '@vue/composition-api'
 import clone from 'just-clone'
 
 export type ChartConfigT = {
   multiplier: number
+  lineWidth: number
 }
 
 export default defineComponent({
@@ -51,6 +65,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const config = reactive<ChartConfigT>({
       multiplier: 1.0,
+      lineWidth: 2.0,
     })
 
     const dialog_ = computed({
@@ -62,9 +77,17 @@ export default defineComponent({
       },
     })
 
+    const isValid = ref(false)
+
+    const rules = {
+      numberRequired: (v: number) => typeof v === 'number' || 'Required',
+    }
+
     return {
       dialog_,
       config,
+      isValid,
+      rules,
     }
   },
   methods: {
