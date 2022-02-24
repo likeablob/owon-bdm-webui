@@ -153,6 +153,9 @@ export default defineComponent({
             })),
         },
       ]
+      // Make it non-reactive
+      Object.assign(series[0], { _isVue: true })
+
       if (updatePaused.value) {
         return generatedSeries
       }
@@ -184,7 +187,7 @@ export default defineComponent({
         },
       },
       markers: {
-        size: 1,
+        size: 0,
       },
       legend: {
         show: true,

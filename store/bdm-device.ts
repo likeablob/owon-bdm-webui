@@ -52,8 +52,12 @@ export default class BdmDevice extends VuexModule {
   @Mutation
   setReported(v: BdmParseResultT) {
     this.reported = v
+  }
+
+  @Mutation
+  addToHistory(v: BdmParseResultT) {
     this.histories = Object.freeze(
-      [...this.histories, Object.freeze(v)].filter(
+      [...this.histories, v].filter(
         (v) => v.timestamp > Date.now() - 1000 * 60 * 60
       )
     )
@@ -66,7 +70,9 @@ export default class BdmDevice extends VuexModule {
 
   get historiesOf() {
     return (funcName: BdmFuncNameT) => {
-      return this.histories.filter((v) => v.funcName === funcName)
+      return Object.freeze(
+        this.histories.filter((v) => v.funcName === funcName)
+      )
     }
   }
 
@@ -108,6 +114,7 @@ export default class BdmDevice extends VuexModule {
         const parsed = OwonB41TPlus.parse(packet)
         log.debug(parsed)
 
+        this.context.commit('addToHistory', Object.freeze(parsed))
         this.context.commit('setReported', parsed)
       }
     )
