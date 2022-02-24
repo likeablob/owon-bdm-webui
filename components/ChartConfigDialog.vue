@@ -8,7 +8,7 @@
           <v-spacer></v-spacer>
         </v-toolbar>
         <v-card-text class="pa-3 text-center">
-          <v-form>
+          <v-form @submit.prevent="onClickApply">
             <v-text-field
               v-model.number="config.multiplier"
               type="number"
