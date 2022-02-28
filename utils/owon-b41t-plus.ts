@@ -80,6 +80,7 @@ export type BdmParseResultT = {
   rawData: BdmRawDataT
   funcName?: BdmFuncNameT
   scaleName?: BdmScaleNameT
+  unitName: string
   readingTypes: BdmReadingTypesT
   readValue: number
   isOverloaded: boolean
@@ -115,6 +116,37 @@ export const BDM_COMMAND_NAME_TO_DATA: { [K in BdmCommandNameT]: number } = {
 }
 
 export class OwonB41TPlus {
+  private static toUnit(func?: BdmFuncNameT, scale?: BdmScaleNameT): string {
+    const scaleString = scale === 'Unit' ? '' : scale ?? ''
+
+    switch (func) {
+      case 'DCV':
+      case 'ACV':
+      case 'Diode':
+        return scaleString + 'V'
+      case 'ACA':
+      case 'DCA':
+        return scaleString + 'A'
+      case 'Ohm':
+      case 'Continuity':
+        return scaleString + 'Ohms'
+      case 'Cap':
+        return scaleString + 'F'
+      case 'Hz':
+        return scaleString + 'Hz'
+      case 'Duty':
+        return scaleString + '%'
+      case 'TempC':
+        return scaleString + '℃'
+      case 'TempF':
+        return scaleString + 'F'
+      case 'hFE':
+        return scaleString
+      default:
+        return scaleString + 'n/a'
+    }
+  }
+
   public static parse(packet: DataView): BdmParseResultT {
     const chunkA = packet.getUint16(0, true)
     const chunkB = packet.getUint16(2, true)
@@ -143,14 +175,21 @@ export class OwonB41TPlus {
       readValue = 0
     }
 
+    const funcName = BDM_FUNC_NAMES.find(
+      (v) => BDM_FUNC_NAME_TO_ID[v] === rawData.func
+    )
+
+    const scaleName = BDM_SCALE_NAMES.find(
+      (v) => BDM_SCALE_NAME_TO_ID[v] === rawData.scale
+    )
+
+    const unitName = this.toUnit(funcName, scaleName)
+
     return {
       rawData,
-      funcName: BDM_FUNC_NAMES.find(
-        (v) => BDM_FUNC_NAME_TO_ID[v] === rawData.func
-      ),
-      scaleName: BDM_SCALE_NAMES.find(
-        (v) => BDM_SCALE_NAME_TO_ID[v] === rawData.scale
-      ),
+      funcName,
+      scaleName,
+      unitName,
       readingTypes: {
         max: rawData.max > 0,
         min: rawData.min > 0,

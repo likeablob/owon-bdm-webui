@@ -136,13 +136,16 @@ export default defineComponent({
       const name = selectedSeriesName.value
       const deadline = Date.now() - ms(selectedPeriod.value)
 
+      let currentRead = '-'
+      if (bdmDevice.reported) {
+        currentRead = `${
+          bdmDevice.reported.readValue * chartConfig.multiplier
+        } ${bdmDevice.reported.unitName}`
+      }
+
       const series = [
         {
-          name: `${name} (${
-            bdmDevice.reported?.readValue === undefined
-              ? '-'
-              : bdmDevice.reported.readValue * chartConfig.multiplier
-          })`,
+          name: `${name} (${currentRead})`,
           color:
             colorPalette[BDM_FUNC_NAMES.indexOf(name) % colorPalette.length],
           data: bdmDevice
