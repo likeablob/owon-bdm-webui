@@ -124,7 +124,7 @@ export class OwonB41TPlus {
       marker: chunkA >> 10,
       func: (chunkA >> 6) & 0xf,
       scale: (chunkA >> 3) & 0x7,
-      decimal: (chunkA >> 3) & 0x7,
+      decimal: chunkA & 0x7,
       junk: (chunkB >> 6) & 0x3,
       max: (chunkB >> 5) & 0x1,
       min: (chunkB >> 4) & 0x1,
